@@ -1,13 +1,123 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <script src="heroic.js"></script>
-  </head>
-  <body>
-    <div id="display">
-      Stuff!
-    </div>
-  </body>
-  <script>
-    fullyRandomCharacter();
-  </script>
+	<head>
+		<meta charset="utf-8">
+		<title>EGtW Heroic Chronicle Generator</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="author" content="Rob 'Chaithi' Thayer">
+
+		<!-- MATERIAL DESIGN ICONIC FONT -->
+		<link rel="stylesheet" href="fonts/material-design-iconic-font/css/material-design-iconic-font.css">
+
+		<!-- STYLE CSS -->
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+	<body>
+		<div class="wrapper">
+            <form action="">
+            	<div id="wizard">
+            		<!-- SECTION 1 -->
+	                <h4></h4>
+	                <section>
+										<h1>Backstory</h1>
+										<h2>Homeland</h2>
+										<p>Your character was born in: <h3><div id="bornIn"></div> <img src="images/refresh.svg" class="refresh" onclick="newBornIn()"></p></h3>
+										<p>Your character was raised in: <h3><div id="raisedIn"></div> <img src="images/refresh.svg" id="raisedRefresh" class="refresh" onclick="newRaisedIn()" style="visibility: hidden"></h3></p>
+
+										<div class="form-group">
+
+											<div class="form-holder active">
+												<input type="checkbox" id="raisedInDiff" onclick="setBornDifferentThanRaised()">
+												<span for="raisedInDiff">&emsp;Check box if character was raised in a different region than they were born.</span>
+											</div>
+
+											<h2>Background</h2>
+											<p>Your character's background is: <h3><div id="background"></div> <img src="images/refresh.svg" class="refresh" onclick="newBackground()"></p></h3>
+
+	                </section>
+
+					<!-- SECTION 2 -->
+	                <h4></h4>
+	                <section>
+										<h1>Settlements</h1>
+										<p><i>Note: Your character's primary settlement is based off of where you were raised.</i></p>
+										<p>Your character's primary settlement is: <h2><div id="settlement1"></div></h2> <img src="images/refresh.svg" class="refresh" onclick="newSettlements()"></p>
+										<div class="form-holder active">
+											<input type="checkbox" id="traveler" onclick="setTraveler()">
+											<span for="traveler">&emsp;Check box if character frequently moved (Nomad, Child of Soldier, etc.)</span>
+										</div>
+										<div id="additionalSettlements" style="visibility: hidden">
+											<br>
+											<p>As a traveler, you can have additional connections and familarity with:<p>
+											<ul>
+												<li><h3><div id="settlement2"></div></h3></li>
+												<li><h3><div id="settlement3"></div></h3></li>
+											</ul>
+											<br>
+										</div>
+
+											<br>
+											<p>Based on your home settlement, your race is: <h2><div id="race"></h2><img src="images/refresh.svg" class="refresh" onclick="newRace()"></p>
+                		
+	                </section>
+
+	                <!-- SECTION 3 -->
+	                <h4></h4>
+	                <section>
+										<h1>Family</h1>
+	                  <p>Your character has <span id="parents"></span> parent(s).</p>
+										<p>Your character has <span id="siblings"></span> sibling(s).&emsp;<img src="images/refresh.svg" class="refresh" onclick="newFamilySize()"></p>
+
+	                </section>
+
+									<!-- SECTION 4 -->
+	                <h4></h4>
+	                <section>
+										<h1>Relationships</h1>
+										<h2>Family</h2>
+	                  <p>You have <span id="numOfFamilyRelationships"></span> powerful family relationship(s).</p>
+										<p>Refer to the <a href="https://www.dndbeyond.com/sources/egtw/character-options-subclasses#PowerfulFamilyRelationships" target="_blank">Powerful Family Relationships table</a><p>
+										<p>Dice Results: <h3><span id="familyDiceResults"></span></h3></p>
+										<br>
+										<h2>Acquired Allies and Rivals</h2>
+										<div id="acolyte"></div>
+										<h3>Allies</h3>
+										<div id="allies"></div>
+										<h3>Rivals</h3>
+										<div id="rivals"></div>
+	                </section>
+
+									<!-- SECTION 5 -->
+									<h4></h4>
+									<section>
+										<h1>Misc</h1>
+										<div id="others"></div>
+									</section>
+
+									<!-- SUMMARY -->
+									<h4></h4>
+									<section>
+										<h2>Summary</h2>
+										<div id="summary">
+
+										</div>
+									</section>
+            </form>
+					</div>
+		</div>
+
+
+		<script src="js/jquery-3.3.1.min.js"></script>
+
+		<!-- JQUERY STEP -->
+		<script src="js/jquery.steps.js"></script>
+
+		<script src="js/main.js"></script>
+
+		<script src="js/heroic.js"></script>
+		<script>
+			fullyRandomCharacter();
+		</script>
+<!-- Template created and distributed by Colorlib -->
+</body>
 </html>
