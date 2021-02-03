@@ -1,170 +1,137 @@
-// Roll a d(max)
-function rollDice(max) {
-  return Math.floor(Math.random() * max) + 1;
-}
+// constructor
+let bornIn = 0, // {int} Region character was born in
+    raisedIn = 0, // {int} Region character was raised in
+    bornDifferentThanRaised = false, // {bool} If character was raised in a different region than they were born in
+    background = 0, // {int} Character's background
+    socialAllies = 0, // {int} Number of Allies from the character's background and region.
+    socialRivals = 0, // {int} Number of Rivals from the character's background and region.
+    traveler = false, // {bool} If character traveled a lot when growing up
+    acolyteLegalFaithChoice = false, // {bool} If background is Acolyte and region is Dwendalian Empire. They have to choose between a rival or ally.
+    settlement1 = "", // {string} Character's primary settlement
+    settlement2 = "", // {string} Character's secondary settlement (only if traveler = true)
+    settlement3 = "", // {string} Character's tertiary settlement (only if traveler = true)
+    village = false, // {bool} If primary settlement is a smaller town. Helps determine family size.
+    race = {}, // {object: string + int} Holds list of Race and percentage based on settlement1
+    chosenRace = "", // {string} Character's race, based off the race list.
+    numOfParents = 0, // {int} Number of character's parents. Ranges from 0-3
+    numOfSiblings = 0, // {int} Number of character's siblings
+    familyRelationships = [], // {array} Holds dice results from family relationships
+    allyResults = [], // {array} Holds dice results from social ally rolls
+    rivalResults = [], // {array} Holds dice results from social rival rolls
+    fatefulMomentsNum = 0, // {int} Number of fateful moments, determined based on the character's ally/rival rolls
+    fatefulMomentResults = [], // {array} Dice results from their fateful moments.
+    favoriteFoodResult = 0, // {int} Die result for character's favorite food
+    mysteriousSecretResult = 0, // {int} Die result for character's mysterious secret
+    prophecyResult = 0; // {int} Die result for character's prophecy
 
-// Backstory Section
-// Homeland
-let bornIn = 0,
-    raisedIn = 0,
-    bornDifferentThanRaised = false,
-    background = 0,
-    socialAllies = 0,
-    socialRivals = 0,
-    acolyteLegalFaithChoice = false,
-    settlement1 = "",
-    settlement2 = "",
-    settlement3 = "",
-    chosenSettlement = "",
-    village = false,
-    race = {},
-    chosenRace = "",
-    numOfParents = 0,
-    numOfSiblings = 0,
-    familyRelationships = [],
-    allyResults = [],
-    rivalResults = [],
-    fatefulMomentsNum = 0,
-    fatefulMomentResults = [],
-    favoriteFoodResult = 0,
-    mysteriousSecretResult = 0,
-    prophecyResult = 0;
 
+// Set functions
+
+/**
+  * @desc Sets the bornIn value and displays on FE
+  * @param int region - the region number to set to
+  * @return nothing
+*/
 function setBorn(region) {
   bornIn = region;
+  document.getElementById("bornIn").innerHTML = getHomeland(region) + ". Roll: " + bornIn;
 }
 
+/**
+  * @desc Sets the raisedIn value and displays on FE
+  * @param int region - the region number to set to
+  * @return nothing
+*/
 function setRaised(region) {
   raisedIn = region;
+  document.getElementById("raisedIn").innerHTML = getHomeland(region) + ". Roll: " + raisedIn;
+  setSocialStatusRelationships();
 }
 
-function setBornDifferentThanRaised(born) {
-  bornDifferentThanRaised = born;
-}
-
-function randomHomeland() {
-  let result = rollDice(100);
-  if (result > 0 && result <= 21) {
-    return 1;
-  } else if (result > 21 && result <= 40) {
-    return 2;
-  } else if (result > 40 && result <= 72) {
-    return 3;
-  } else if (result > 72 && result <= 77) {
-    return 4;
+/**
+  * @desc Finds if user checked box. Sets the bool and updates the raisedIn value if different
+  * @param none
+  * @return nothing
+*/
+function setBornDifferentThanRaised() {
+  var different = document.getElementById("raisedInDiff").checked,
+      refreshImg = document.getElementById("raisedRefresh");
+  bornDifferentThanRaised = different;
+  if (different) {
+    let region = randomHomeland();
+    while (region == bornIn) {
+      region = randomHomeland();
+    }
+    setRaised(region);
+    refreshImg.style.visibility = 'visible';
   } else {
-    return 5;
+    setRaised(bornIn);
+    refreshImg.style.visibility = 'hidden';
   }
 }
 
+/**
+  * @desc Checks if user has checked the traveler box. Hides/shows the traveler section on FE
+  * @param none
+  * @return nothing
+*/
+function setTraveler() {
+  var isTraveler = document.getElementById("traveler").checked,
+      additionalSettlements = document.getElementById("additionalSettlements");
+  traveler = isTraveler;
+
+  if (isTraveler){
+    additionalSettlements.style.visibility = 'visible';
+  } else {
+    additionalSettlements.style.visibility = 'hidden';
+  }
+}
+
+/**
+  * @desc Sets the born value to a random homeland region
+  * @param none
+  * @return nothing
+*/
 function setBornIn() {
   setBorn(randomHomeland());
 }
 
+/**
+  * @desc Sets the raisedIn value based on if different than born to a random region
+  * @param none
+  * @return nothing
+*/
 function setRaisedIn() {
-  let result = randomHomeland();
-  while (result == bornIn) {
-    result = randomHomeland();
-  }
-  setRaised(result);
-}
-
-function getHomeland(homeland) {
-  switch(homeland) {
-    case 1:
-      return "Menagerie Coast (choose Clovis Concord or Revelry Pirates)";
-      break;
-    case 2:
-      return "Marrow Valley";
-      break;
-    case 3:
-      return "Zemni Fields";
-      break;
-    case 4:
-      return "Greying Wildlands";
-      break;
-    case 5:
-      return "Xhorhas (choose Kryn Dynasty or Zarzith Kitril)";
-      break;
-    default:
-      return "";
+  if (bornDifferentThanRaised) {
+    let result = randomHomeland();
+    while (result == bornIn) {
+      result = randomHomeland();
+    }
+    setRaised(result);
+  } else {
+    setRaised(bornIn);
   }
 }
-// End homeland
 
-// Backgrounds
+/**
+  * @desc Sets the background to a d20 result. Updates FE. Triggers social status rolls.
+  * @param none
+  * @return nothing
+*/
 function setBackground() {
   background = rollDice(20);
+  document.getElementById("background").innerHTML = getBackground(background) + ". Roll: " + background;
+  setSocialStatusRelationships();
 }
 
-function getBackground() {
-  switch(background) {
-    case 1:
-      return "Acolyte";
-      break;
-    case 2:
-      return "Acolyte (Luxonborn)";
-      break;
-    case 3:
-      return "Charlatan";
-      break;
-    case 4:
-      return "Criminal";
-      break;
-    case 5:
-      return "Criminal (Myriad Operative)";
-      break;
-    case 6:
-      return "Entertainer";
-      break;
-    case 7:
-      return "Folk Hero";
-      break;
-    case 8:
-      return "Grinner";
-      break;
-    case 9:
-      return "Guild Artisan";
-      break;
-    case 10:
-      return "Hermit";
-      break;
-    case 11:
-      return "Noble";
-      break;
-    case 12:
-      return "Outlander";
-      break;
-    case 13:
-      return "Sage";
-      break;
-    case 14:
-      return "Sage (Cobalt Scholar)";
-      break;
-    case 15:
-      return "Sailor";
-      break;
-    case 16:
-      return "Sailor (Revelry Pirate)";
-      break;
-    case 17:
-      return "Soldier";
-      break;
-    case 18:
-      return "Spy (Augen Trust)";
-      break;
-    case 19:
-      return "Urchin";
-      break;
-    case 20:
-      return "Volstrucker Agent";
-      break;
-  }
-}
-// End Background
-
-// Social Status Relationships
+/**
+  * @desc Sets Social Allies/Rivals based on the character's region and background.
+  * @param none
+  * @return nothing
+*/
 function setSocialStatusRelationships() {
+  socialAllies = 0;
+  socialRivals = 0;
   switch (raisedIn) {
     case 1:
       switch (background) {
@@ -285,10 +252,510 @@ function setSocialStatusRelationships() {
     default:
       break;
   }
+  setAllies(socialAllies);
+  setRivals(socialRivals);
+  checkAcolyte();
 }
-// End Social Status Relationships
 
-// Settlement
+/**
+  * @desc Sets the character's settlements. Determines them randomly.
+  * This also sets the race list and village value
+  * @param none
+  * @return nothing
+*/
+function setSettlements() {
+  settlement1 = randomSettlement();
+  let saveRace = race,
+      saveVillage = village,
+      display1 = document.getElementById("settlement1"),
+      display2 = document.getElementById("settlement2"),
+      display3 = document.getElementById("settlement3");
+  settlement2 = randomSettlement();
+  settlement3 = randomSettlement();
+  while (settlement2 == settlement1) {
+    settlement2 = randomSettlement();
+  }
+  while (settlement3 == settlement1 || settlement3 == settlement2) {
+    settlement3 = randomSettlement();
+  }
+  race = saveRace;
+  village = saveVillage;
+  display1.innerHTML = settlement1;
+  display2.innerHTML = settlement2;
+  display3.innerHTML = settlement3;
+  setRace(race, rollDice(100));
+}
+
+/**
+  * @desc Determines a homeland region
+  * @param none
+  * @return int between 1-5
+*/
+function setRace(races, result) {
+  var comparator = 0;
+  for (chosen in races) {
+    comparator += races[chosen];
+    if (result <= comparator) {
+      chosenRace = chosen;
+      document.getElementById("race").innerHTML = chosenRace + ". Roll: " + result;
+      return;
+    }
+  }
+}
+
+/**
+  * @desc Determines identity and relationship die result
+  * @param int num - number of Social Allies
+  * @return nothing
+*/
+function setAllies(num) {
+  allyResults = [];
+  if (num > 0) {
+    for (var i = 0; i < num; i++) {
+      allyResults.push({
+        "identity": getIdentity(rollDice(100)),
+        "roll": rollDice(100)
+      });
+    }
+  }
+}
+
+/**
+  * @desc Determines identity and relationship die result
+  * @param int num - number of Social rivals
+  * @return nothing
+*/
+function setRivals(num) {
+  rivalResults = [];
+  if (num > 0) {
+    for (var i = 0; i < num; i++) {
+      rivalResults.push({
+        "identity": getIdentity(rollDice(100)),
+        "roll": rollDice(100)
+      });
+    }
+  }
+}
+
+/**
+  * @desc Determines number of Powerful Family Relationships.
+  * Compares a d3 roll to size of family. Sets the d3 roll to family size if more.
+  * Updates the FE. Pushes die results into an array.
+  * @param int parents - number of parents
+  * @param int siblings - number of siblings
+  * @return nothing
+*/
+function setFamilyRelationships(parents, siblings) {
+  var result = rollDice(3),
+      totalFamilyMembers = parents + siblings;
+  document.getElementById('familyDiceResults').innerHTML = "";
+  if (result > totalFamilyMembers) {
+    result = totalFamilyMembers;
+  }
+  if (result > 0) {
+    familyRelationships.length = 0;
+    for (var i = 0; i < result; i++) {
+      var roll = rollDice(100);
+      familyRelationships.push(roll);
+      document.getElementById('familyDiceResults').innerHTML += roll + " ";
+    }
+  document.getElementById("numOfFamilyRelationships").innerHTML = result;
+  } else {
+    document.getElementById("numOfFamilyRelationships").innerHTML = "0";
+  }
+}
+
+/**
+  * @desc Determines die results (d20) for Fateful moments
+  * @param int num - number of Fateful Moments
+  * @return nothing
+*/
+function setFatefulMoments(num) {
+  fatefulMomentResults = [];
+  if (num > 0) {
+    for (var i = 0; i < num; i++) {
+      fatefulMomentResults.push(rollDice(20));
+    }
+  }
+}
+
+/**
+  * @desc Takes in whether character lives in a village and determines
+  * number of parents and siblings
+  * Triggers checking for Powerful Family Relationships
+  * @param bool village - Whether character's settlement is a village
+  * @return nothing
+*/
+function setFamilySize(village) {
+  let parentResult = rollDice(100),
+      siblingResult = rollDice(100),
+      displayParents = document.getElementById("parents"),
+      displaySiblings = document.getElementById("siblings");
+  if (village) {
+    if (parentResult <= 10) {
+      numOfParents = 3;
+    } else if (parentResult <= 50) {
+      numOfParents = 2;
+    } else if (parentResult <= 89) {
+      numOfParents = 1;
+    } else {
+      numOfParents = 0;
+    }
+    if (siblingResult <= 10) {
+      numOfSiblings = rollDice(4) + rollDice(4) + 2;
+    } else if (siblingResult <= 50) {
+      numOfSiblings = rollDice(4) + rollDice(4);
+    } else if (siblingResult <= 89) {
+      numOfSiblings = rollDice(4);
+    } else {
+      numOfSiblings = 0;
+    }
+  } else {
+    if (parentResult <= 5) {
+      numOfParents = 3;
+    } else if (parentResult <= 60) {
+      numOfParents = 2;
+    } else if (parentResult <= 80) {
+      numOfParents = 1;
+    } else {
+      numOfParents = 0;
+    }
+    if (siblingResult <= 5) {
+      numOfSiblings = rollDice(4) + rollDice(4) + 2;
+    } else if (siblingResult <= 60) {
+      numOfSiblings = rollDice(4) + rollDice(4);
+    } else if (siblingResult <= 80) {
+      numOfSiblings = rollDice(4);
+    } else {
+      numOfSiblings = 0;
+    }
+  }
+  if (numOfParents == 3) {
+    displayParents.innerHTML = "3+";
+  } else {
+    displayParents.innerHTML = numOfParents;
+  }
+
+  displaySiblings.innerHTML = numOfSiblings;
+  setFamilyRelationships(numOfParents, numOfSiblings);
+}
+
+/**
+  * @desc Determines random Favorite Foods, mysterious secret, and prophecies
+  * Also updates FE
+  * @param none
+  * @return nothing
+*/
+function setOthers() {
+  let div = document.getElementById("others");
+  favoriteFoodResult = rollDice(8);
+  mysteriousSecretResult = rollDice(20);
+  prophecyResult = rollDice(20);
+
+  div.innerHTML += "<h3>Fateful Moments</h3>";
+  if (fatefulMomentsNum > 0) {
+    div.innerHTML += "<p>Refer to the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#FatefulMoments' target='_blank'><i>Fateful Moments</i> table</a></p>";
+    var moments = fatefulMomentResults.values();
+    for (moment of moments) {
+      div.innerHTML += "<li>" + moment + "</li>";
+    }
+  } else {
+    div.innerHTML += "<p><i>No fateful moments</i></p>";
+  }
+
+  div.innerHTML += "<h3>Favorite Food, Mysterious Secret, and Prophecy Results</h3>";
+  div.innerHTML += "<p><i>Refer to the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#FavoriteFood' target='_blank'>Favorite Foods tables</a> for your primary settlement</i></p>";
+  div.innerHTML += "<p><b>Favorite Food</b>: " + favoriteFoodResult + "</p>";
+  div.innerHTML += "<p><i>Refer to the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#MysteriousSecret' target='_blank'>Mysterious Secret table</a></i></p>";
+  div.innerHTML += "<p><b>Mysterious Secret</b>: " + mysteriousSecretResult + "</p>";
+  div.innerHTML += "<p><i>Refer to the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#Prophecy' target='_blank'>Prophecy table</a></i></p>";
+  div.innerHTML += "<p><b>Prophecy</b>: " + prophecyResult + "</p>";
+}
+
+// NEW methods. If user wants to reroll sections, these trigger
+/**
+  * @desc Reroll Born In region
+  * @param none
+  * @return nothing
+*/
+function newBornIn() {
+  let newBorn = randomHomeland();
+  while (newBorn == bornIn) {
+    newBorn = randomHomeland();
+  }
+  setBorn(newBorn);
+
+  // Check if current Raised In is the same as the new Born In
+  if (raisedIn == newBorn || !bornDifferentThanRaised) {
+    // re-roll!
+    setBornDifferentThanRaised();
+  }
+  summary();
+}
+
+/**
+  * @desc Reroll Raised In region
+  * @param none
+  * @return nothing
+*/
+function newRaisedIn() {
+  let newRaised = randomHomeland();
+  while (newRaised == bornIn || newRaised == raisedIn) {
+    newRaised = randomHomeland();
+  }
+  setRaised(newRaised);
+  summary();
+}
+
+/**
+  * @desc Reroll Background
+  * @param none
+  * @return nothing
+*/
+function newBackground() {
+  var newBackground = rollDice(20);
+  while (newBackground == background) {
+    newBackground = rollDice(20);
+  }
+  setBackground(newBackground);
+  summary();
+}
+
+/**
+  * @desc Reroll Settlements
+  * I'm too damn lazy to refactor this to allow rerolling individual settlements
+  * @param none
+  * @return nothing
+*/
+function newSettlements() {
+  let oldSettlement = settlement1;
+  setSettlements();
+  while (oldSettlement == settlement1) {
+    setSettlements();
+  }
+  summary();
+}
+
+/**
+  * @desc Reroll Race
+  * @param none
+  * @return nothing
+*/
+function newRace() {
+  let current = chosenRace;
+  while (current == chosenRace) {
+    setRace(race, rollDice(100));
+  }
+  summary();
+}
+
+/**
+  * @desc Reroll Family Size
+  * @param none
+  * @return nothing
+*/
+function newFamilySize() {
+  let currentParents = numOfParents,
+      currentSiblings = numOfSiblings;
+  while (currentParents == numOfParents && currentSiblings == numOfSiblings) {
+    setFamilySize(village);
+  }
+  summary();
+}
+
+// GET methods
+/**
+  * @desc Fetches text for a particular region int
+  * @param int homeland - the raisedIn or bornIn region number
+  * @return string - Text for the chosen region
+*/
+function getHomeland(homeland) {
+  switch(homeland) {
+    case 1:
+      return "<a href='https://www.dndbeyond.com/sources/egtw/wildemount-gazetteer-menagerie-coast' target='_blank'>Menagerie Coast (choose Clovis Concord or Revelry Pirates)</a>";
+      break;
+    case 2:
+      return "<a href='https://www.dndbeyond.com/sources/egtw/wildemount-gazetteer-marrow-valley' target='_blank'>Marrow Valley</a>";
+      break;
+    case 3:
+      return "<a href='https://www.dndbeyond.com/sources/egtw/wildemount-gazetteer-zemni-fields' target='_blank'>Zemni Fields</a>";
+      break;
+    case 4:
+      return "<a href='https://www.dndbeyond.com/sources/egtw/wildemount-gazetteer-greying-wildlands' target='_blank'>Greying Wildlands</a>";
+      break;
+    case 5:
+      return "<a href='https://www.dndbeyond.com/sources/egtw/wildemount-gazetteer-wastes-of-xhorhas' target='_blank'>Xhorhas (choose Kryn Dynasty or Zarzith Kitril)</a>";
+      break;
+    default:
+      return "Something went wrong.";
+  }
+}
+
+/**
+  * @desc Fetches text for the character's background
+  * @param none
+  * @return string - Text for the chosen background
+*/
+function getBackground() {
+  switch(background) {
+    case 1:
+      return "<a href='https://www.dndbeyond.com/backgrounds/acolyte' target='_blank'>Acolyte</a>";
+      break;
+    case 2:
+      return "<a href='https://www.dndbeyond.com/backgrounds/acolyte-luxonborn' target='_blank'>Acolyte (Luxonborn)</a>";
+      break;
+    case 3:
+      return "<a href='https://www.dndbeyond.com/backgrounds/charlatan' target='_blank'>Charlatan</a>";
+      break;
+    case 4:
+      return "<a href='https://www.dndbeyond.com/backgrounds/criminal-spy' target='_blank'>Criminal</a>";
+      break;
+    case 5:
+      return "<a href='https://www.dndbeyond.com/backgrounds/criminal-myriad-operative' target='_blank'>Criminal (Myriad Operative)</a>";
+      break;
+    case 6:
+      return "<a href='https://www.dndbeyond.com/backgrounds/entertainer' target='_blank'>Entertainer</a>";
+      break;
+    case 7:
+      return "<a href='https://www.dndbeyond.com/backgrounds/folk-hero' target='_blank'>Folk Hero</a>";
+      break;
+    case 8:
+      return "<a href='https://www.dndbeyond.com/backgrounds/grinner' target='_blank'>Grinner</a>";
+      break;
+    case 9:
+      return "<a href='https://www.dndbeyond.com/backgrounds/guild-artisan-guild-merchant' target='_blank'>Guild Artisan</a>";
+      break;
+    case 10:
+      return "<a href='https://www.dndbeyond.com/backgrounds/hermit' target='_blank'>Hermit</a>";
+      break;
+    case 11:
+      return "<a href='https://www.dndbeyond.com/backgrounds/noble' target='_blank'>Noble</a>";
+      break;
+    case 12:
+      return "<a href='https://www.dndbeyond.com/backgrounds/outlander' target='_blank'>Outlander</a>";
+      break;
+    case 13:
+      return "<a href='https://www.dndbeyond.com/backgrounds/sage' target='_blank'>Sage</a>";
+      break;
+    case 14:
+      return "<a href='https://www.dndbeyond.com/backgrounds/sage-cobalt-scholar' target='_blank'>Sage (Cobalt Scholar)</a>";
+      break;
+    case 15:
+      return "<a href='https://www.dndbeyond.com/backgrounds/sailor' target='_blank'>Sailor</a>";
+      break;
+    case 16:
+      return "<a href='https://www.dndbeyond.com/backgrounds/sailor-revelry-pirate' target='_blank'>Sailor (Revelry Pirate)</a>";
+      break;
+    case 17:
+      return "<a href='https://www.dndbeyond.com/backgrounds/soldier' target='_blank'>Soldier</a>";
+      break;
+    case 18:
+      return "<a href='https://www.dndbeyond.com/backgrounds/spy-augen-trust' target='_blank'>Spy (Augen Trust)</a>";
+      break;
+    case 19:
+      return "<a href='https://www.dndbeyond.com/backgrounds/urchin' target='_blank'>Urchin</a>";
+      break;
+    case 20:
+      return "<a href='https://www.dndbeyond.com/backgrounds/volstrucker-agent' target='_blank'>Volstrucker Agent</a>";
+      break;
+  }
+}
+
+/**
+  * @desc Fetches text for a rival or ally's identity
+  * @param int result - d100 result
+  * @return string - Text for the selected identity
+*/
+function getIdentity(result) {
+  if (result <= 5) {
+    return "<a href='https://www.dndbeyond.com/monsters/commoner' target='_blank'>Commoner</a>";
+  } else if (result <= 10) {
+    return "<a href='https://www.dndbeyond.com/monsters/acolyte' target='_blank'>Acolyte</a>";
+  } else if (result <= 15) {
+    return "<a href='https://www.dndbeyond.com/monsters/bandit' target='_blank'>Bandit</a>";
+  } else if (result <= 20) {
+    return "<a href='https://www.dndbeyond.com/monsters/bandit-captain' target='_blank'>Bandit captain</a>";
+  } else if (result <= 25) {
+    return "<a href='https://www.dndbeyond.com/monsters/berserker' target='_blank'>Berserker</a>";
+  } else if (result <= 30) {
+    return "<a href='https://www.dndbeyond.com/monsters/cultist' target='_blank'>Cultist</a>";
+  } else if (result <= 35) {
+    fatefulMomentsNum++;
+    return "<a href='https://www.dndbeyond.com/monsters/cult-fanatic' target='_blank'>Cult fanatic</a>";
+  } else if (result <= 40) {
+    return "<a href='https://www.dndbeyond.com/monsters/druid' target='_blank'>Druid</a>";
+  } else if (result <= 45) {
+    fatefulMomentsNum++;
+    return "<a href='https://www.dndbeyond.com/monsters/gladiator' target='_blank'>Gladiator</a>";
+  } else if (result <= 50) {
+    return "<a href='https://www.dndbeyond.com/monsters/guard' target='_blank'>Guard</a>";
+  } else if (result <= 55) {
+    return "<a href='https://www.dndbeyond.com/monsters/knight' target='_blank'>Knight</a>";
+  } else if (result <= 60) {
+    return "<a href='https://www.dndbeyond.com/monsters/priest' target='_blank'>Priest</a>";
+  } else if (result <= 65) {
+    return "<a href='https://www.dndbeyond.com/monsters/scout' target='_blank'>Scout</a>";
+  } else if (result <= 70) {
+    return "<a href='https://www.dndbeyond.com/monsters/spy' target='_blank'>Spy</a>";
+  } else if (result <= 75) {
+    return "<a href='https://www.dndbeyond.com/monsters/tribal-warrior' target='_blank'>Tribal Warrior</a>";
+  } else if (result <= 80) {
+    return "<a href='https://www.dndbeyond.com/monsters/veteran' target='_blank'>Veteran</a>";
+  } else if (result <= 84) {
+    fatefulMomentsNum++;
+    return "<a href='https://www.dndbeyond.com/monsters/mage' target='_blank'>Mage</a>";
+  } else if (result <= 88) {
+    fatefulMomentsNum++;
+    return "<a href='https://www.dndbeyond.com/monsters/noble' target='_blank'>Noble</a>";
+  } else if (result <= 92) {
+    fatefulMomentsNum++;
+    return "<a href='https://www.dndbeyond.com/monsters/assassin' target='_blank'>Assassin</a>";
+  } else if (result <= 94) {
+    fatefulMomentsNum++;
+    return "<a href='https://www.dndbeyond.com/monsters/blood-hunter' target='_blank'>Blood Hunter</a>";
+  } else if (result <= 96) {
+    fatefulMomentsNum++;
+    return "<a href='https://www.dndbeyond.com/monsters/werebear' target='_blank'>Good or neutral werebear</a> or <a href='https://www.dndbeyond.com/monsters/weretiger' target='_blank'>weretiger</a> (DM's choice)";
+  } else if (result <= 98) {
+    fatefulMomentsNum++;
+    return "<a href='https://www.dndbeyond.com/monsters/wereboar' target='_blank'>Evil wereboar</a>, <a href='https://www.dndbeyond.com/monsters/wererat' target='_blank'>wererat</a>, or <a href='https://www.dndbeyond.com/monsters/werewolf' target='_blank'>werewolf</a> (DM's choice)";
+  } else if (result <= 99) {
+    fatefulMomentsNum++;
+    return "<a href='https://www.dndbeyond.com/monsters/archmage' target='_blank'>Archmage</a>";
+  } else {
+    fatefulMomentsNum++;
+    return "<a href='https://www.dndbeyond.com/monsters/adult-gold-dragon' target='_blank'>Adult gold dragon</a> or <a href='https://www.dndbeyond.com/monsters/adult-red-dragon' target='_blank'>Adult red dragon</a> (DM's choice)";
+  }
+}
+
+// RANDOM functions. This randomly select from a table.
+
+/**
+  * @desc Determines a homeland region
+  * @param none
+  * @return int between 1-5
+*/
+function randomHomeland() {
+  let result = rollDice(100);
+  if (result > 0 && result <= 21) {
+    return 1;
+  } else if (result > 21 && result <= 40) {
+    return 2;
+  } else if (result > 40 && result <= 72) {
+    return 3;
+  } else if (result > 72 && result <= 77) {
+    return 4;
+  } else {
+    return 5;
+  }
+}
+
+/**
+  * @desc Determines a settlement (d100)
+  * Based on determined settlement sets the bool village and array race.
+  * @param none
+  * @return string - Settlement text.
+*/
 function randomSettlement() {
   let result = rollDice(100);
   switch (raisedIn) {
@@ -476,280 +943,131 @@ function randomSettlement() {
   }
 }
 
-function setSettlements() {
-  settlement1 = randomSettlement();
-  let saveRace = race,
-      saveVillage = village;
-  settlement2 = randomSettlement();
-  settlement3 = randomSettlement();
-  while (settlement2 == settlement1) {
-    settlement2 = randomSettlement();
+/**
+  * @desc Acolytes in Dwendalian Empire require making a choice of faith (legal vs illegal)
+  * This choice also means you gain either an ally or a rival. As such, this will change the
+  * number of allies/rivals a character has.
+  * Updates FE
+  * @param none
+  * @return nothing
+*/
+function checkAcolyte() {
+  if (acolyteLegalFaithChoice) {
+    let display = document.getElementById('acolyte');
+    display.innerHTML = "<p>Due to being an Acolyte within the Dwendalian Empire, choose to follow a Legal or an Illegal Faith.</p>";
+    display.innerHTML += "<p><i>Legal Faith</i>: Ally: " + allyResults[0]["identity"] + ". Die Result (Consult <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#AcquiredAlliesandRivals' target='_blank'><i>Ally Relationships</i></a> Table): " + allyResults[0]["roll"] + "</p>";
+    display.innerHTML += "<p><i>Illegal Faith</i>: Rival: " + rivalResults[0]["identity"] + ". Die Result (Consult <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#AcquiredAlliesandRivals' target='_blank'><i>Rival Relationships</i></a> Table): " + rivalResults[0]["roll"] + "</p>";
+    allyResults.shift();
+    rivalResults.shift();
   }
-  while (settlement3 == settlement1 || settlement3 == settlement2) {
-    settlement3 = randomSettlement();
-  }
-  race = saveRace;
-  village = saveVillage;
-}
-
-function setRace(races, result) {
-  var comparator = 0;
-  for (chosen in races) {
-    comparator += races[chosen];
-    if (result <= comparator) {
-      chosenRace = chosen;
-      return;
-    }
-  }
-} // End Home Settlement
-
-// Family size
-function setFamilySize(village) {
-  let parentResult = rollDice(100),
-      siblingResult = rollDice(100);
-  if (village) {
-    if (parentResult <= 10) {
-      numOfParents = 3;
-    } else if (parentResult <= 50) {
-      numOfParents = 2;
-    } else if (parentResult <= 89) {
-      numOfParents = 1;
-    } else {
-      numOfParents = 0;
-    }
-    if (siblingResult <= 10) {
-      numOfSiblings = rollDice(4) + rollDice(4) + 2;
-    } else if (siblingResult <= 50) {
-      numOfSiblings = rollDice(4) + rollDice(4);
-    } else if (siblingResult <= 89) {
-      numOfSiblings = rollDice(4);
-    } else {
-      numOfSiblings = 0;
+  let allyDiv = document.getElementById('allies'),
+      rivalDiv = document.getElementById('rivals');
+  allyDiv.innerHTML = "";
+  if (allyResults.length > 0) {
+    allyDiv.innerHTML += "<p><i>Consult the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#AcquiredAlliesandRivals' target='_blank'>Ally Relationships Table</a></i><p>";
+    var ally = allyResults.values();
+    for (result of ally) {
+      allyDiv.innerHTML += "<li>" + result["identity"] + ". Roll Result: " + result["roll"] + "</li>";
     }
   } else {
-    if (parentResult <= 5) {
-      numOfParents = 3;
-    } else if (parentResult <= 60) {
-      numOfParents = 2;
-    } else if (parentResult <= 80) {
-      numOfParents = 1;
-    } else {
-      numOfParents = 0;
-    }
-    if (siblingResult <= 5) {
-      numOfSiblings = rollDice(4) + rollDice(4) + 2;
-    } else if (siblingResult <= 60) {
-      numOfSiblings = rollDice(4) + rollDice(4);
-    } else if (siblingResult <= 80) {
-      numOfSiblings = rollDice(4);
-    } else {
-      numOfSiblings = 0;
-    }
+    allyDiv.innerHTML += "<p><i>No Allies</i></p>";
   }
-} // End Family Size
-
-// Family Relationships
-function setFamilyRelationships(parents, siblings) {
-  let result = rollDice(3),
-      totalFamilyMembers = parents + siblings;
-  if (result > totalFamilyMembers) {
-    result = totalFamilyMembers;
-  }
-  if (result > 0) {
-    for (var i = 0; i < result; i++) {
-      familyRelationships.push(rollDice(100));
+  rivalDiv.innerHTML = "";
+  if (rivalResults.length > 0) {
+    rivalDiv.innerHTML += "<p><i>Consult the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#AcquiredAlliesandRivals' target='_blank'>Rival Relationships Table</a></i><p>";
+    var rival = rivalResults.values();
+    for (result of rival) {
+      rivalDiv.innerHTML += "<li>" + result["identity"] + ". Roll Result: " + result["roll"] + "</li>";
     }
-  }
-} // End Family Relationships
-
-// Allies and Rivals
-function setAllies(num) {
-  if (num > 0) {
-    for (var i = 0; i < num; i++) {
-      allyResults.push({
-        "identity": getIdentity(rollDice(100)),
-        "roll": rollDice(100)
-      });
-    }
-  }
-}
-
-function setRivals(num) {
-  if (num > 0) {
-    for (var i = 0; i < num; i++) {
-      rivalResults.push({
-        "identity": getIdentity(rollDice(100)),
-        "roll": rollDice(100)
-      });
-    }
-  }
-}
-
-function getIdentity(result) {
-  if (result <= 5) {
-    return "Commoner";
-  } else if (result <= 10) {
-    return "Acolyte";
-  } else if (result <= 15) {
-    return "Bandit";
-  } else if (result <= 20) {
-    return "Bandit captain";
-  } else if (result <= 25) {
-    return "Berserker";
-  } else if (result <= 30) {
-    return "Cultist";
-  } else if (result <= 35) {
-    fatefulMomentsNum++;
-    return "Cult fanatic";
-  } else if (result <= 40) {
-    return "Druid";
-  } else if (result <= 45) {
-    fatefulMomentsNum++;
-    return "Gladiator";
-  } else if (result <= 50) {
-    return "Guard";
-  } else if (result <= 55) {
-    return "Knight";
-  } else if (result <= 60) {
-    return "Priest";
-  } else if (result <= 65) {
-    return "Scout";
-  } else if (result <= 70) {
-    return "Spy";
-  } else if (result <= 75) {
-    return "Tribal Warrior";
-  } else if (result <= 80) {
-    return "Veteran";
-  } else if (result <= 84) {
-    fatefulMomentsNum++;
-    return "Mage";
-  } else if (result <= 88) {
-    fatefulMomentsNum++;
-    return "Noble";
-  } else if (result <= 92) {
-    fatefulMomentsNum++;
-    return "Assassin";
-  } else if (result <= 94) {
-    fatefulMomentsNum++;
-    return "Blood Hunter";
-  } else if (result <= 96) {
-    fatefulMomentsNum++;
-    return "Good or neutral werebear or weretiger (DM's choice)";
-  } else if (result <= 98) {
-    fatefulMomentsNum++;
-    return "Evil wereboar, wererat, or werewolf (DM's choice)";
-  } else if (result <= 99) {
-    fatefulMomentsNum++;
-    return "Archmage";
   } else {
-    fatefulMomentsNum++;
-    return "Adult gold dragon or Adult red dragon (DM's choice)";
+    rivalDiv.innerHTML += "<p><i>No Rivals</i></p>";
   }
-} // End Allies and Rivals
+}
 
-// Fateful Moments
-function setFatefulMoments(num) {
-  if (num > 0) {
-    for (var i = 0; i < num; i++) {
-      fatefulMomentResults.push(rollDice(20));
-    }
-  }
-} // End Fateful Moments
-
-// Favorite Foods, mysterious secret, and prophecies
-function setOthers() {
-  favoriteFoodResult = rollDice(8);
-  mysteriousSecretResult = rollDice(20);
-  prophecyResult = rollDice(20);
-} // End Favorite Foods, mysterious secret, and prophecies
-
-// Here we go! Let's generate a random character
+/**
+  * @desc Generates a random character.
+  * @param none
+  * @return nothing
+*/
 function fullyRandomCharacter() {
   setBornIn();
   setRaisedIn();
   setBackground();
-  setSocialStatusRelationships();
   setSettlements();
-  setRace(race, rollDice(100));
   setFamilySize(village);
-  setFamilyRelationships(numOfParents, numOfSiblings);
-  setAllies(socialAllies);
-  setRivals(socialRivals);
   setFatefulMoments(fatefulMomentsNum);
   setOthers();
-  displayResults();
+  summary();
 }
 
-function displayResults() {
-  let div = document.getElementById("display");
+/**
+  * @desc Updates the FE Summary section with current character info.
+  * @param none
+  * @return nothing
+*/
+function summary() {
+  let div = document.getElementById("summary");
   div.innerHTML = "";
-  div.innerHTML += "<h1>Homeland</h1>";
-  div.innerHTML += "<p><b>Born In:</b> " + getHomeland(bornIn) + "</p>";
-  div.innerHTML += "<p><b>Raised In</b> (Optional, if you want to have grown up in a different region): " + getHomeland(raisedIn) + "</p>";
-  div.innerHTML += "<h2>Home Settlements</h2><b>Primary Settlement</b>: " + settlement1 + "<br>";
-  div.innerHTML += "If your character is a traveler (nomad, soldier, etc), you may also have connections located in: " + settlement2 + " and " + settlement3 + ".<br>";
-  div.innerHTML += "<p><b>Race</b> (Based on primary settlement): " + chosenRace + "</p>";
-  div.innerHTML += "<h1>Background</h1>";
-  div.innerHTML += "<p><b>Background:</b> " + getBackground() + "</p>";
-  div.innerHTML += "<h1>Social Status</h1>";
-  div.innerHTML += "<h3>Family</h3>";
-  div.innerHTML += "<p><b>Parents Alive</b>: " + numOfParents + "</p>";
-  div.innerHTML += "<p><b>Siblings Alive</b>: " + numOfSiblings + "</p>";
-
+  div.innerHTML += "Born In: " + getHomeland(bornIn) + ". <br>Raised in: " + getHomeland(raisedIn);
+  div.innerHTML += "<br>Primary Settlement: " + settlement1;
+  if (traveler)
+    div.innerHTML += ". Additional Settlements: " + settlement2 + " and/or " + settlement3;
+  div.innerHTML += "<br>Race: " + chosenRace;
+  div.innerHTML += "<br>Background: " + getBackground();
+  div.innerHTML += "<br>Family: ";
+  if (numOfParents == 3)
+    div.innerHTML += "3+";
+  else {
+    div.innerHTML += numOfParents;
+  }
+  div.innerHTML += " parents & " + numOfSiblings + " siblings alive.";
   if (familyRelationships.length > 0) {
     var relations = familyRelationships.values();
-    div.innerHTML += "<p><b>Powerful Family Relationships Results</b> (Refer to <i><a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#PowerfulFamilyRelationships' target='_blank'>Family Relationships table</a></i>):</p>";
+    div.innerHTML += "<br>Powerful Family Relationships Results: ";
     for (relationship of relations) {
-      div.innerHTML += "<li>" + relationship + "</li>";
+      div.innerHTML += relationship + " ";
     }
   }
-  div.innerHTML += "<h1>Allies and Rivals</h1>";
-
   if (acolyteLegalFaithChoice) {
-    div.innerHTML += "<p>As your background is Acolyte and you grew up in the Dwendalian Empire, you can choose to worship";
-    div.innerHTML += " a legal faith or an illegal faith.";
-    div.innerHTML += "<p><i>Legal Faith</i>: Ally: " + allyResults[0]["identity"] + ". Die Result (Consult <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#AcquiredAlliesandRivals' target='_blank'><i>Ally Relationships</i></a> Table): " + allyResults[0]["roll"] + "</p>";
-    div.innerHTML += "<p><i>Illegal Faith</i>: Rival: " + rivalResults[0]["identity"] + ". Die Result (Consult <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#AcquiredAlliesandRivals' target='_blank'><i>Rival Relationships</i></a> Table): " + rivalResults[0]["roll"] + "</p>";
-    allyResults.shift();
-    rivalResults.shift();
-  }
-  if (allyResults.length > 0) {
-    div.innerHTML += "<h2>Allies</h2>";
-    div.innerHTML += "<p><i>Consult the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#AcquiredAlliesandRivals' target='_blank'>Ally Relationships Table</a></i><p>";
-    var ally = allyResults.values();
-    for (result of ally) {
-      div.innerHTML += "<li>" + result["identity"] + ". Roll Result: " + result["roll"] + "</li>";
-    }
+    let acoDiv = document.getElementById("acolyte").innerHTML;
+    div.innerHTML += "<br>" + acoDiv;
   } else {
-    div.innerHTML += "<p><i>No Allies</i></p>";
-  }
-  if (rivalResults.length > 0) {
-    div.innerHTML += "<h2>Rivals</h2>";
-    div.innerHTML += "<p><i>Consult the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#AcquiredAlliesandRivals' target='_blank'>Rival Relationships Table</a></i><p>";
-    var rival = rivalResults.values();
-    for (result of rival) {
-      div.innerHTML += "<li>" + result["identity"] + ". Roll Result: " + result["roll"] + "</li>";
+    if (allyResults.length > 0) {
+      div.innerHTML += "<br>Ally results: ";
+      var ally = allyResults.values();
+      for (result of ally) {
+        div.innerHTML += result["identity"] + ". Roll Result: " + result["roll"] + ". ";
+      }
+    } else {
+      div.innerHTML += "<br>No Allies";
     }
-  } else {
-    div.innerHTML += "<p><i>No Rivals</i></p>";
+    if (rivalResults.length > 0) {
+      div.innerHTML += "<br>Rival results: ";
+      var rival = rivalResults.values();
+      for (result of rival) {
+        div.innerHTML += result["identity"] + ". Roll Result: " + result["roll"] + ". ";
+      }
+    } else {
+      div.innerHTML += "<br>No rivals.";
+    }
   }
-
-  div.innerHTML += "<h1>Fateful Moments</h1>";
   if (fatefulMomentsNum > 0) {
-    div.innerHTML += "<p>Refer to the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#FatefulMoments' target='_blank'><i>Fateful Moments</i> table</a></p>";
+    div.innerHTML += "<br>Fateful Moments: ";
     var moments = fatefulMomentResults.values();
     for (moment of moments) {
-      div.innerHTML += "<li>" + moment + "</li>";
+      div.innerHTML += moment + " ";
     }
   } else {
     div.innerHTML += "<p><i>No fateful moments</i></p>";
   }
+   div.innerHTML += "<br>Favorite Food: " + favoriteFoodResult + ". Mysterious Secret: " + mysteriousSecretResult + ". Prophecy: " + prophecyResult;
+}
 
-  div.innerHTML += "<h1>Favorite Food, Mysterious Secret, and Prophecy Results</h1>";
-  div.innerHTML += "<p><i>Refer to the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#FavoriteFood' target='_blank'>Favorite Foods tables</a> for your primary settlement</i></p>";
-  div.innerHTML += "<p><b>Favorite Food</b>: " + favoriteFoodResult + "</p>";
-  div.innerHTML += "<p><i>Refer to the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#MysteriousSecret' target='_blank'>Mysterious Secret table</a></i></p>";
-  div.innerHTML += "<p><b>Mysterious Secret</b>: " + mysteriousSecretResult + "</p>";
-  div.innerHTML += "<p><i>Refer to the <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#Prophecy' target='_blank'>Prophecy table</a></i></p>";
-  div.innerHTML += "<p><b>Prophecy</b>: " + prophecyResult + "</p>";
+/**
+  * @desc Rolls a number between 1 and max
+  * @param int max - Highest number
+  * @return int - random number between 1 and max
+*/
+function rollDice(max) {
+  return Math.floor(Math.random() * max) + 1;
 }
