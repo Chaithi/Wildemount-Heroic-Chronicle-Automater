@@ -168,7 +168,6 @@ function setSocialStatusRelationships() {
         case 1:
           acolyteLegalFaithChoice = true;
           socialAllies += 1;
-          socialRivals += 1;
           break;
         case 5:
         case 6:
@@ -957,9 +956,8 @@ function checkAcolyte() {
     let display = document.getElementById('acolyte');
     display.innerHTML = "<p>Due to being an Acolyte within the Dwendalian Empire, choose to follow a Legal or an Illegal Faith.</p>";
     display.innerHTML += "<p><i>Legal Faith</i>: Ally: " + allyResults[0]["identity"] + ". Die Result (Consult <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#AcquiredAlliesandRivals' target='_blank'><i>Ally Relationships</i></a> Table): " + allyResults[0]["roll"] + "</p>";
-    display.innerHTML += "<p><i>Illegal Faith</i>: Rival: " + rivalResults[0]["identity"] + ". Die Result (Consult <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#AcquiredAlliesandRivals' target='_blank'><i>Rival Relationships</i></a> Table): " + rivalResults[0]["roll"] + "</p>";
+    display.innerHTML += "<p><i>Illegal Faith</i>: Rival: " + allyResults[0]["identity"] + ". Die Result (Consult <a href='https://www.dndbeyond.com/sources/egtw/character-options-subclasses#AcquiredAlliesandRivals' target='_blank'><i>Rival Relationships</i></a> Table): " + allyResults[0]["roll"] + "</p>";
     allyResults.shift();
-    rivalResults.shift();
   }
   let allyDiv = document.getElementById('allies'),
       rivalDiv = document.getElementById('rivals');
