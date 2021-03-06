@@ -132,6 +132,7 @@ function setBackground() {
 function setSocialStatusRelationships() {
   socialAllies = 0;
   socialRivals = 0;
+  acolyteLegalFaithChoice = false;
   switch (raisedIn) {
     case 1:
       switch (background) {
