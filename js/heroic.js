@@ -133,6 +133,7 @@ function setSocialStatusRelationships() {
   socialAllies = 0;
   socialRivals = 0;
   acolyteLegalFaithChoice = false;
+  fatefulMomentsNum = 0;
   switch (raisedIn) {
     case 1:
       switch (background) {
