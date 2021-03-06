@@ -1053,6 +1053,7 @@ function summary() {
     }
   }
   if (fatefulMomentsNum > 0) {
+    setFatefulMoments(fatefulMomentsNum);
     div.innerHTML += "<br>Fateful Moments: ";
     var moments = fatefulMomentResults.values();
     for (moment of moments) {
