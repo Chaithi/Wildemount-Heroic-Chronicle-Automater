@@ -378,6 +378,7 @@ function setFatefulMoments(num) {
       fatefulMomentResults.push(rollDice(20));
     }
   }
+  setOthers();
 }
 
 /**
@@ -449,6 +450,7 @@ function setFamilySize(village) {
 */
 function setOthers() {
   let div = document.getElementById("others");
+  div.innerHTML = "";
   favoriteFoodResult = rollDice(8);
   mysteriousSecretResult = rollDice(20);
   prophecyResult = rollDice(20);
