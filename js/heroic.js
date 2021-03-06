@@ -505,6 +505,7 @@ function newRaisedIn() {
     newRaised = randomHomeland();
   }
   setRaised(newRaised);
+  newSettlements();
   summary();
 }
 
